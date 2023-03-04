@@ -27,6 +27,14 @@ eksctl create cluster \
 
 # aws eks update-kubeconfig --name $(cat casa_eks_clustername) --region $MY_REGION
 
+# If an error occurs
+
+if [ `echo $?` -eq 1 ]; then
+  echo "Creating an EKS Cluster failed...exiting..."
+  echo "" | awk '{print $1}'
+  exit
+fi
+
 ./csi-enable.sh
 
 echo "" | awk '{print $1}'
