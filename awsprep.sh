@@ -1,3 +1,16 @@
+if [ ! -d ~/eks-casa/ ]; then
+  echo "Creating home directory ~/eks-casa/"
+  mkdir ~/eks-casa/
+fi
+
+if [ ! -f ~/eks-casa/aws ]; then
+  echo "Install AWS CLI"
+  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  unzip -qq awscliv2.zip
+  sudo ./aws/install --bin-dir ~/eks-casa/ --install-dir ~/eks-casa/ --update
+  rm -rf awscliv2.zip aws
+fi
+
 if [ ! -f ~/eks-casa/eksctl ]; then
   echo "Install eksctl"
   # curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/v0.132.0-rc.0/eksctl_Linux_amd64.tar.gz" | tar xz -C ~/eks-casa
@@ -10,6 +23,7 @@ if [ ! -f ~/eks-casa/kubectl ]; then
   curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
   # curl -LO "https://dl.k8s.io/release/v1.23.1/bin/linux/amd64/kubectl"
   chmod 755 kubectl
+  mv kubectl ~/eks-casa/
 fi
 
 if [ ! -f ~/eks-casa/helm ]; then
@@ -19,24 +33,25 @@ if [ ! -f ~/eks-casa/helm ]; then
   mv linux-amd64/helm .
   rm helm-v3.7.0-linux-amd64.tar.gz
   rm -rf linux-amd64
+  mv helm ~/eks-casa/
 fi
 
-cat ~/.bashrc | grep eks-casa
+cat ~/.bashrc | grep eks-casa >/dev/null
 
 if [ `echo $?` -eq 1 ]
 then
   echo "export PATH=$PATH:~/eks-casa" >> ~/.bashrc
-  echo "alias k=kubectl" >> ~/.bashrc
+  echo "alias k=~/eks-casa/kubectl" >> ~/.bashrc
 fi
 
 source ~/.bashrc
 
-echo "Generate ssh public key if not existing"
 if [ ! -f ~/.ssh/id_rsa ]; then
+  echo "Generate ssh public key"
   ssh-keygen -q -f ~/.ssh/id_rsa -N ""
 fi
 
-clear
+# clear
 
 # aws sts get-caller-identity | grep assumed-role
 # if [ `echo $?` -eq 1 ]
